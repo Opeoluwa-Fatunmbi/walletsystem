@@ -1,0 +1,43 @@
+import "base"
+
+model User extends BaseModel {
+  @@map("users")
+
+  firstName				  String      @map(name: "first_name") @length(max: 50, message: "50 characters max")	
+	lastName				  String      @map(name: "last_name") @length(max: 50, message: "50 characters max")	
+	email					  String	      @length(min: 5, message: "5 characters min")
+	password				  String	    @length(min: 8, message: "8 characters min") @length(max: 20, message: "20 characters max")	  
+	isEmailVerified			Boolean		  @map(name: "is_email_verified")  @default(false)
+	isSuperuser				Boolean		  @map(name: "is_superuser")       @default(false)
+	isStaff					Boolean	  	  @map(name: "is_staff")           @default(false)
+	termsAgreement			Boolean		  @map(name: "terms_agreement")    @default(false)
+	avatarId				  String?	    @db.Uuid @map(name: "avatar_id")
+	avatar					  FileModel?			  @relation(fields: [avatarId], references: [id], onDelete: SetNull)
+	// Tokens
+	access					String?
+	refresh					String?
+
+  @@unique([email])
+
+  // Not needed but compulsory according to design
+  reviews           Review[]
+  user				Otp?
+  listings			Listing[]
+  bids				Bid[]
+  watchlists		Watchlist[]
+}
+
+model GuestUser extends BaseModel {
+  @@map("guest_users")
+
+  // Not needed but compulsory according to design
+  watchlists		Watchlist[]
+}
+
+model Otp extends BaseModel {
+  @@map("otps")
+
+  userId 	String		@db.Uuid @unique @map(name: "user_id")
+  user 		User 		@relation(fields: [userId], references: [id], onDelete: Cascade)
+  code		Int	
+}
